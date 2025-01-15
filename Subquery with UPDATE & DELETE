@@ -1,0 +1,105 @@
+Subquery with UPDATE
+You can use a subquery in an UPDATE statement to update a table based on the results of another query. The basic syntax is:
+
+
+UPDATE table_name
+SET column_name = (SELECT value FROM another_table WHERE condition)
+WHERE condition;
+Example of Subquery with UPDATE:
+Scenario:
+We want to update the price of a product in the products table based on the quantity in stock. For example, if a product's quantity is less than 10, we want to increase its price by 10%.
+
+
+Copy code
+UPDATE products
+SET price = price * 1.10
+WHERE id IN (
+    SELECT id
+    FROM products
+    WHERE quantity < 10
+);
+Explanation:
+UPDATE products: We are updating the products table.
+SET price = price * 1.10: We are increasing the price by 10% for the selected products.
+WHERE id IN (...): The IN operator is used with a subquery to update only the products with an id in the result set of the subquery.
+Subquery (SELECT id FROM products WHERE quantity < 10): This subquery retrieves the id of products that have a quantity less than 10.
+Result:
+If the products table contains:
+
+id	name	price	quantity
+1	iPhone 12	900	5
+2	Samsung S21	850	15
+3	iPad Pro	1100	8
+After running the query, the iPhone 12 and iPad Pro prices will be updated by 10%, while the Samsung S21 will remain unchanged.
+
+Updated table:
+id	name	price	quantity
+1	iPhone 12	990	5
+2	Samsung S21	850	15
+3	iPad Pro	1210	8
+Subquery with DELETE
+You can also use a subquery in a DELETE statement to delete records based on the result of another query. The basic syntax is:
+
+
+DELETE FROM table_name
+WHERE column_name IN (SELECT column_name FROM another_table WHERE condition);
+Example of Subquery with DELETE:
+Scenario:
+We want to delete all orders from the orders table where the product is no longer available in the products table (i.e., the product has been deleted or is out of stock).
+
+
+Copy code
+DELETE FROM orders
+WHERE productId IN (
+    SELECT id
+    FROM products
+    WHERE quantity = 0
+);
+Explanation:
+DELETE FROM orders: We are deleting records from the orders table.
+WHERE productId IN (...): We specify a condition for deletion based on the productId.
+Subquery (SELECT id FROM products WHERE quantity = 0): This subquery retrieves the id of products that have a quantity of 0 (out of stock).
+Result:
+If the orders table has:
+
+id	orderNumber	customerId	productId
+1	1001	1	1
+2	1002	2	2
+3	1003	3	3
+And the products table has:
+
+id	name	price	quantity
+1	iPhone 12	900	0
+2	Samsung S21	850	5
+3	iPad Pro	1100	0
+After running the query, the orders with productId 1 and 3 (iPhone 12 and iPad Pro) will be deleted because their quantity is 0.
+
+Updated orders table:
+id	orderNumber	customerId	productId
+2	1002	2	2
+Subquery with UPDATE and DELETE (Complex Example)
+Scenario:
+You want to delete all customers who have not placed any orders (customers who are not present in the orders table) and then update the products table to mark those products as inactive where no orders were placed in the last 30 days.
+
+SQL Query (DELETE):
+DELETE FROM customers
+WHERE id NOT IN (
+    SELECT customerId
+    FROM orders
+);
+SQL Query (UPDATE):
+
+UPDATE products
+SET status = 'inactive'
+WHERE id NOT IN (
+    SELECT DISTINCT productId
+    FROM orders
+    WHERE orderDate > CURDATE() - INTERVAL 30 DAY
+);
+Explanation:
+The DELETE query removes all customers from the customers table who do not have any orders in the orders table.
+The UPDATE query sets the status of products to 'inactive' if they haven't been ordered in the last 30 days.
+Summary of Concepts:
+Subquery with UPDATE: You can use a subquery in the SET clause or the WHERE clause of an UPDATE statement to update data based on other table values.
+Subquery with DELETE: You can use a subquery in the WHERE clause of a DELETE statement to remove rows based on values in other tables.
+Performance Considerations: Subqueries can be inefficient if the inner query returns a large number of rows. It's worth considering alternatives such as JOINs in complex queries to improve performance.
