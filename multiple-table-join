@@ -1,0 +1,85 @@
+customers
+id	name	email
+1	John Doe	john@example.com
+2	Jane Smith	jane@example.com
+orders
+id	orderNumber	customerId	productId
+1	1001	1	2
+2	1002	2	1
+products
+id	name	price
+1	iPhone 12	900
+2	Samsung S21	850
+Objective:
+We want to list all customers, the products they ordered, and the prices.
+
+SQL Query to Join Multiple Tables (3 Tables)
+To join these three tables (customers, orders, and products), we need to link them by their related columns. Specifically:
+
+orders.customerId should match customers.id.
+orders.productId should match products.id.
+
+SELECT customers.name AS customerName,
+       orders.orderNumber,
+       products.name AS productName,
+       products.price
+FROM customers
+INNER JOIN orders ON customers.id = orders.customerId
+INNER JOIN products ON orders.productId = products.id;
+
+Explanation:
+First Join: INNER JOIN orders ON customers.id = orders.customerId
+This joins the customers table with the orders table based on the customer ID.
+Second Join: INNER JOIN products ON orders.productId = products.id
+This joins the orders table with the products table based on the product ID.
+The INNER JOIN ensures that we only get records where there is a match in both tables. If an order is placed by a customer for a product, it will appear in the result.
+
+Result:
+customerName	orderNumber	productName	price
+John Doe	1001	Samsung S21	850
+Jane Smith	1002	iPhone 12	900
+Left Join (LEFT OUTER JOIN)
+If you want to include all customers, even those who did not place any orders, you can use a LEFT JOIN. This will include all rows from the left table (customers), and matching rows from the right table (orders and products). If there is no match, the result will include NULL for the right table’s columns.
+
+
+SELECT customers.name AS customerName,
+       orders.orderNumber,
+       products.name AS productName,
+       products.price
+FROM customers
+LEFT JOIN orders ON customers.id = orders.customerId
+LEFT JOIN products ON orders.productId = products.id;
+Result with LEFT JOIN:
+customerName	orderNumber	productName	price
+John Doe	1001	Samsung S21	850
+Jane Smith	1002	iPhone 12	900
+Mary Lee	NULL	NULL	NULL
+Here, Mary Lee did not place an order, so NULL values appear for the orderNumber, productName, and price columns.
+
+Right Join (RIGHT OUTER JOIN)
+If you want to include all orders, even those that don't have a matching customer, you can use a RIGHT JOIN. It will include all rows from the right table (orders and products), and matching rows from the left table (customers).
+
+
+SELECT customers.name AS customerName,
+       orders.orderNumber,
+       products.name AS productName,
+       products.price
+FROM customers
+RIGHT JOIN orders ON customers.id = orders.customerId
+RIGHT JOIN products ON orders.productId = products.id;
+Result with RIGHT JOIN:
+customerName	orderNumber	productName	price
+John Doe	1001	Samsung S21	850
+Jane Smith	1002	iPhone 12	900
+In this case, you would get results similar to the INNER JOIN in this example because all orders are associated with customers and products.
+
+Full Join (FULL OUTER JOIN)
+A FULL JOIN will return all rows when there is a match in either the left (customers) or the right (orders and products) table. This is useful when you want to return all customers, orders, and products, even if some do not have a match.
+
+SELECT customers.name AS customerName,
+       orders.orderNumber,
+       products.name AS productName,
+       products.price
+FROM customers
+FULL OUTER JOIN orders ON customers.id = orders.customerId
+FULL OUTER JOIN products ON orders.productId = products.id;
