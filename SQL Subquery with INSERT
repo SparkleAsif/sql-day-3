@@ -1,0 +1,84 @@
+SQL Subquery with INSERT
+You can use a subquery with an INSERT statement to insert data into a table based on the result of another query. The basic syntax is as follows:
+
+
+INSERT INTO table_name (column1, column2, ...)
+SELECT column1, column2, ...
+FROM another_table
+WHERE condition;
+Example of Subquery with INSERT
+Let’s assume we have two tables:
+
+products (to store product details)
+orders (to store customer orders)
+Products Table
+id	name	price	quantity
+1	iPhone 12	900	50
+2	Samsung S21	850	30
+Orders Table
+id	orderNumber	customerId	productId
+1	1001	1	1
+2	1002	2	2
+Objective:
+You want to insert a new order into the orders table where the productId is selected from the products table based on a price condition.
+
+SQL Query:
+INSERT INTO orders (orderNumber, customerId, productId)
+SELECT '1003', 3, id
+FROM products
+WHERE price < 900;
+Explanation:
+INSERT INTO orders (orderNumber, customerId, productId): This specifies the columns in the orders table where data will be inserted.
+SELECT '1003', 3, id: This selects the orderNumber (1003), customerId (3), and the id of the product from the products table where the condition is met.
+FROM products WHERE price < 900: This filters the products with a price less than 900 (which includes Samsung S21 with price 850).
+Result:
+After running the above query, a new order will be inserted into the orders table:
+
+id	orderNumber	customerId	productId
+1	1001	1	1
+2	1002	2	2
+3	1003	3	2
+Here, a new order (1003) is placed by customer 3 for the Samsung S21 because it meets the price condition (price < 900).
+
+Another Example: Insert Using Subquery with Multiple Tables
+If you want to insert data into a table using a subquery that involves multiple tables, you can do so like this.
+
+For instance, you might want to add an order for a customer, but only if that customer exists in the customers table.
+
+SQL Query:
+INSERT INTO orders (orderNumber, customerId, productId)
+SELECT '1004', c.id, p.id
+FROM customers c
+JOIN products p ON p.price < 900
+WHERE c.name = 'Jane Smith';
+Explanation:
+SELECT '1004', c.id, p.id: We are selecting a new orderNumber (1004), customerId from the customers table, and the productId from the products table where the price is less than 900.
+FROM customers c JOIN products p ON p.price < 900: This joins the customers and products tables.
+WHERE c.name = 'Jane Smith': This filters the customer by name, so we only insert an order for Jane Smith.
+Result:
+After running this query, if Jane Smith exists in the customers table, an order will be placed for the Samsung S21 (product with price less than 900).
+
+Subquery for Insert with Complex Conditions
+You can also perform more complex queries with subqueries. For example, you might want to insert orders where a specific condition is met, such as the customer having made multiple orders.
+
+SQL Query:
+INSERT INTO orders (orderNumber, customerId, productId)
+SELECT '1005', id, 1
+FROM customers
+WHERE id IN (
+    SELECT customerId
+    FROM orders
+    GROUP BY customerId
+    HAVING COUNT(*) > 1
+);
+Explanation:
+SELECT '1005', id, 1: Select the new orderNumber (1005), and insert the customerId and product id (1 for iPhone 12).
+Subquery (SELECT customerId FROM orders GROUP BY customerId HAVING COUNT(*) > 1): This subquery selects the customerId from orders where the customer has placed more than one order (HAVING COUNT(*) > 1).
+Result:
+This query will insert an order for iPhone 12 for any customer who has placed more than one order.
+
+Summary:
+Subqueries with INSERT allow you to insert records based on the result of another query.
+You can use subqueries to dynamically select values from another table (or tables) to insert.
+The subquery can involve conditions based on other tables, aggregates, or other complex operations.
+Let me know if you'd like more examples or further explanations!
