@@ -1,0 +1,62 @@
+QL Subquery with IN
+A subquery is a query nested inside another query. The IN operator is used to compare a value with a set of values returned by a subquery.
+
+The basic syntax for using a subquery with IN is:
+
+SELECT column_name(s)
+FROM table_name
+WHERE column_name IN (SELECT column_name FROM another_table WHERE condition);
+Example with a Subquery and IN
+Let's use the customers, orders, and products tables we discussed earlier. We want to find all customers who have placed an order for a product with a price greater than 800.
+
+Tables:
+customers
+orders
+products
+Here’s the SQL query:
+
+SELECT name
+FROM customers
+WHERE id IN (
+    SELECT customerId
+    FROM orders
+    WHERE productId IN (
+        SELECT id
+        FROM products
+        WHERE price > 800
+    )
+);
+Explanation:
+The innermost subquery: (SELECT id FROM products WHERE price > 800) retrieves the id of products whose price is greater than 800.
+The middle subquery: (SELECT customerId FROM orders WHERE productId IN (...)) selects customerId from the orders table where the productId matches the products with prices greater than 800.
+The outer query: SELECT name FROM customers WHERE id IN (...) retrieves the names of customers who have ordered those expensive products.
+Result:
+Let’s say the products table has the following prices:
+
+id	name	price
+1	iPhone 12	900
+2	Samsung S21	850
+And the orders table has the following data:
+
+id	orderNumber	customerId	productId
+1	1001	1	1
+2	1002	2	2
+The result would be:
+
+name
+John Doe
+Jane Smith
+Both John Doe and Jane Smith have ordered products with a price greater than 800.
+
+Subquery with IN for Multiple Conditions
+You can also use the IN operator with more than one condition in the subquery. For example, if you want to find customers who have ordered specific products, you can extend the query:
+
+
+SELECT name
+FROM customers
+WHERE id IN (
+    SELECT customerId
+    FROM orders
+    WHERE productId IN (1, 2)  -- Match productId 1 or 2
+);
+This query will find all customers who have ordered either product 1 or product 2.
